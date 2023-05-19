@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css"><link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>Kitui County Assembly wards</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script><script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/proj4.js"></script>
+        <script src="js/proj4leaflet.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/Wodis_1.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+            highlightLayer.openPopup();
+        }
+        var crs = new L.Proj.CRS('EPSG:3857', '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs', {
+            resolutions: [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07],
+        });
+        var map = L.map('map', {
+            crs: crs,
+            continuousWorld: false,
+            worldCopyJump: false, 
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[-3.2288826564784654,36.693889985130944],[-0.060698987428730686,40.985182681573995]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'feet',
+            secondaryLengthUnit: 'miles',
+            primaryAreaUnit: 'sqfeet',
+            secondaryAreaUnit: 'sqmiles'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        function pop_Wodis_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gid'] !== null ? autolinker.link(feature.properties['gid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">population</th>\
+                        <td>' + (feature.properties['population'] !== null ? autolinker.link(feature.properties['population'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">county</th>\
+                        <td>' + (feature.properties['county'] !== null ? autolinker.link(feature.properties['county'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">subcounty</th>\
+                        <td>' + (feature.properties['subcounty'] !== null ? autolinker.link(feature.properties['subcounty'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ward</th>\
+                        <td>' + (feature.properties['ward'] !== null ? autolinker.link(feature.properties['ward'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['uid'] !== null ? autolinker.link(feature.properties['uid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['scuid'] !== null ? autolinker.link(feature.properties['scuid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['cuid'] !== null ? autolinker.link(feature.properties['cuid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Registered</th>\
+                        <td>' + (feature.properties['Registered'] !== null ? autolinker.link(feature.properties['Registered'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Votes Garn</th>\
+                        <td>' + (feature.properties['Votes Garn'] !== null ? autolinker.link(feature.properties['Votes Garn'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">PARTY</th>\
+                        <td>' + (feature.properties['PARTY'] !== null ? autolinker.link(feature.properties['PARTY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">MCA</th>\
+                        <td>' + (feature.properties['MCA'] !== null ? autolinker.link(feature.properties['MCA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">STATUS</th>\
+                        <td>' + (feature.properties['STATUS'] !== null ? autolinker.link(feature.properties['STATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">GENDER</th>\
+                        <td>' + (feature.properties['GENDER'] !== null ? autolinker.link(feature.properties['GENDER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_Wodis_1_0(feature) {
+            switch(String(feature.properties['PARTY'])) {
+                case 'CPK':
+                    return {
+                pane: 'pane_Wodis_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(226,138,24,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'GTAP':
+                    return {
+                pane: 'pane_Wodis_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,131,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'INDEPENDENT':
+                    return {
+                pane: 'pane_Wodis_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(235,68,129,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'JUBILEE':
+                    return {
+                pane: 'pane_Wodis_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(228,24,24,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MUUNGANO':
+                    return {
+                pane: 'pane_Wodis_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,0,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'NARC':
+                    return {
+                pane: 'pane_Wodis_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(41,58,215,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'UDA':
+                    return {
+                pane: 'pane_Wodis_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(241,226,15,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'WDM K':
+                    return {
+                pane: 'pane_Wodis_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(3,245,233,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_Wodis_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(57,17,132,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Wodis_1');
+        map.getPane('pane_Wodis_1').style.zIndex = 401;
+        map.getPane('pane_Wodis_1').style['mix-blend-mode'] = 'normal';
+        var layer_Wodis_1 = new L.geoJson(json_Wodis_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Wodis_1',
+            layerName: 'layer_Wodis_1',
+            pane: 'pane_Wodis_1',
+            onEachFeature: pop_Wodis_1,
+            style: style_Wodis_1_0,
+        });
+        bounds_group.addLayer(layer_Wodis_1);
+        map.addLayer(layer_Wodis_1);
+            var title = new L.Control();
+            title.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info');
+                this.update();
+                return this._div;
+            };
+            title.update = function () {
+                this._div.innerHTML = '<h2>Kitui County Assembly wards</h2>';
+            };
+            title.addTo(map);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'Wodis<br /><table><tr><td style="text-align: center;"><img src="legend/Wodis_1_CPK0.png" /></td><td>CPK</td></tr><tr><td style="text-align: center;"><img src="legend/Wodis_1_GTAP1.png" /></td><td>GTAP</td></tr><tr><td style="text-align: center;"><img src="legend/Wodis_1_INDEPENDENT2.png" /></td><td>INDEPENDENT</td></tr><tr><td style="text-align: center;"><img src="legend/Wodis_1_JUBILEE3.png" /></td><td>JUBILEE</td></tr><tr><td style="text-align: center;"><img src="legend/Wodis_1_MUUNGANO4.png" /></td><td>MUUNGANO</td></tr><tr><td style="text-align: center;"><img src="legend/Wodis_1_NARC5.png" /></td><td>NARC</td></tr><tr><td style="text-align: center;"><img src="legend/Wodis_1_UDA6.png" /></td><td>UDA</td></tr><tr><td style="text-align: center;"><img src="legend/Wodis_1_WDMK7.png" /></td><td>WDM K</td></tr><tr><td style="text-align: center;"><img src="legend/Wodis_1_8.png" /></td><td></td></tr></table>': layer_Wodis_1,"OSM Standard": layer_OSMStandard_0,}).addTo(map);
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"Votes Garn": "int","Registered": "int","population": "real","STATUS": "str","GENDER": "str","ward": "str","PARTY": "str","subcounty": "str","MCA": "str","uid": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_VotesGarn = document.createElement("div");
+            div_VotesGarn.id = "div_VotesGarn";
+            div_VotesGarn.className = "slider";
+            document.getElementById("menu").appendChild(div_VotesGarn);
+            var lab_VotesGarn = document.createElement('div');
+            lab_VotesGarn.innerHTML  = 'Votes Garn: <span id="val_VotesGarn"></span>';
+            lab_VotesGarn.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_VotesGarn);
+            var reset_VotesGarn = document.createElement('div');
+            reset_VotesGarn.innerHTML = 'clear filter';
+            reset_VotesGarn.className = 'filterlabel';
+            lab_VotesGarn.className = 'filterlabel';
+            reset_VotesGarn.onclick = function() {
+                sel_VotesGarn.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_VotesGarn);
+            var sel_VotesGarn = document.getElementById('div_VotesGarn');
+            noUiSlider.create(sel_VotesGarn, {
+                connect: true,
+                start: [1665, 7124],
+                step: 1,
+                format: wNumb({
+                    decimals: 0,
+                    }),
+                range: {
+                min: 1665,
+                max: 7124
+                }
+            });
+            sel_VotesGarn.noUiSlider.on('update', function (values) {
+            filterVals =[];
+            for (value in values){
+            filterVals.push(parseInt(value))
+            }
+            val_VotesGarn = document.getElementById('val_VotesGarn');
+            val_VotesGarn.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Registered = document.createElement("div");
+            div_Registered.id = "div_Registered";
+            div_Registered.className = "slider";
+            document.getElementById("menu").appendChild(div_Registered);
+            var lab_Registered = document.createElement('div');
+            lab_Registered.innerHTML  = 'Registered: <span id="val_Registered"></span>';
+            lab_Registered.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_Registered);
+            var reset_Registered = document.createElement('div');
+            reset_Registered.innerHTML = 'clear filter';
+            reset_Registered.className = 'filterlabel';
+            lab_Registered.className = 'filterlabel';
+            reset_Registered.onclick = function() {
+                sel_Registered.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_Registered);
+            var sel_Registered = document.getElementById('div_Registered');
+            noUiSlider.create(sel_Registered, {
+                connect: true,
+                start: [7429, 19921],
+                step: 1,
+                format: wNumb({
+                    decimals: 0,
+                    }),
+                range: {
+                min: 7429,
+                max: 19921
+                }
+            });
+            sel_Registered.noUiSlider.on('update', function (values) {
+            filterVals =[];
+            for (value in values){
+            filterVals.push(parseInt(value))
+            }
+            val_Registered = document.getElementById('val_Registered');
+            val_Registered.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_population = document.createElement("div");
+            div_population.id = "div_population";
+            div_population.className = "slider";
+            document.getElementById("menu").appendChild(div_population);
+            var lab_population = document.createElement('div');
+            lab_population.innerHTML  = 'population: <span id="val_population"></span>';
+            lab_population.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_population);
+            var reset_population = document.createElement('div');
+            reset_population.innerHTML = 'clear filter';
+            reset_population.className = 'filterlabel';
+            lab_population.className = 'filterlabel';
+            reset_population.onclick = function() {
+                sel_population.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_population);
+            var sel_population = document.getElementById('div_population');
+            noUiSlider.create(sel_population, {
+                connect: true,
+                start: [13084.0, 40375.0],
+                range: {
+                min: 13084.0,
+                max: 40375.0
+                }
+            });
+            sel_population.noUiSlider.on('update', function (values) {
+            val_population = document.getElementById('val_population');
+            val_population.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_STATUS = document.createElement('div');
+            div_STATUS.id = "div_STATUS";
+            div_STATUS.className= "filterselect";
+            document.getElementById("menu").appendChild(div_STATUS);
+            sel_STATUS = document.createElement('select');
+            sel_STATUS.multiple = true;
+            sel_STATUS.size = 2;
+            sel_STATUS.id = "sel_STATUS";
+            var STATUS_options_str = "<option value='' unselected></option>";
+            sel_STATUS.onchange = function(){filterFunc()};
+            STATUS_options_str  += '<option value="FRESHER">FRESHER</option>';
+            STATUS_options_str  += '<option value="RE ELECTED">RE ELECTED</option>';
+            sel_STATUS.innerHTML = STATUS_options_str;
+            div_STATUS.appendChild(sel_STATUS);
+            var lab_STATUS = document.createElement('div');
+            lab_STATUS.innerHTML = 'STATUS';
+            lab_STATUS.className = 'filterlabel';
+            div_STATUS.appendChild(lab_STATUS);
+            var reset_STATUS = document.createElement('div');
+            reset_STATUS.innerHTML = 'clear filter';
+            reset_STATUS.className = 'filterlabel';
+            reset_STATUS.onclick = function() {
+                var options = document.getElementById("sel_STATUS").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_STATUS.appendChild(reset_STATUS);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_GENDER = document.createElement('div');
+            div_GENDER.id = "div_GENDER";
+            div_GENDER.className= "filterselect";
+            document.getElementById("menu").appendChild(div_GENDER);
+            sel_GENDER = document.createElement('select');
+            sel_GENDER.multiple = true;
+            sel_GENDER.size = 2;
+            sel_GENDER.id = "sel_GENDER";
+            var GENDER_options_str = "<option value='' unselected></option>";
+            sel_GENDER.onchange = function(){filterFunc()};
+            GENDER_options_str  += '<option value="F">F</option>';
+            GENDER_options_str  += '<option value="M">M</option>';
+            sel_GENDER.innerHTML = GENDER_options_str;
+            div_GENDER.appendChild(sel_GENDER);
+            var lab_GENDER = document.createElement('div');
+            lab_GENDER.innerHTML = 'GENDER';
+            lab_GENDER.className = 'filterlabel';
+            div_GENDER.appendChild(lab_GENDER);
+            var reset_GENDER = document.createElement('div');
+            reset_GENDER.innerHTML = 'clear filter';
+            reset_GENDER.className = 'filterlabel';
+            reset_GENDER.onclick = function() {
+                var options = document.getElementById("sel_GENDER").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_GENDER.appendChild(reset_GENDER);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_ward = document.createElement('div');
+            div_ward.id = "div_ward";
+            div_ward.className= "filterselect";
+            document.getElementById("menu").appendChild(div_ward);
+            sel_ward = document.createElement('select');
+            sel_ward.multiple = true;
+            sel_ward.size = 10;
+            sel_ward.id = "sel_ward";
+            var ward_options_str = "<option value='' unselected></option>";
+            sel_ward.onchange = function(){filterFunc()};
+            ward_options_str  += '<option value="Athi Ward">Athi Ward</option>';
+            ward_options_str  += '<option value="Central Ward">Central Ward</option>';
+            ward_options_str  += '<option value="Chuluni Ward">Chuluni Ward</option>';
+            ward_options_str  += '<option value="Endau/malalani Ward">Endau/malalani Ward</option>';
+            ward_options_str  += '<option value="Ikanga/kyatune Ward">Ikanga/kyatune Ward</option>';
+            ward_options_str  += '<option value="Ikutha Ward">Ikutha Ward</option>';
+            ward_options_str  += '<option value="Kanyangi Ward">Kanyangi Ward</option>';
+            ward_options_str  += '<option value="Kanziko Ward">Kanziko Ward</option>';
+            ward_options_str  += '<option value="Kauwi Ward">Kauwi Ward</option>';
+            ward_options_str  += '<option value="Kiomo/kyethani Ward">Kiomo/kyethani Ward</option>';
+            ward_options_str  += '<option value="Kisasi Ward">Kisasi Ward</option>';
+            ward_options_str  += '<option value="Kivou Ward">Kivou Ward</option>';
+            ward_options_str  += '<option value="Kwamutonga/kithumula Ward">Kwamutonga/kithumula Ward</option>';
+            ward_options_str  += '<option value="Kwavonza/yatta Ward">Kwavonza/yatta Ward</option>';
+            ward_options_str  += '<option value="Kyangwithya east Ward">Kyangwithya east Ward</option>';
+            ward_options_str  += '<option value="Kyangwithya west Ward">Kyangwithya west Ward</option>';
+            ward_options_str  += '<option value="Kyome/thaana Ward">Kyome/thaana Ward</option>';
+            ward_options_str  += '<option value="Kyuso Ward">Kyuso Ward</option>';
+            ward_options_str  += '<option value="Matinyani Ward">Matinyani Ward</option>';
+            ward_options_str  += '<option value="Mbitini Ward">Mbitini Ward</option>';
+            ward_options_str  += '<option value="Miambani Ward">Miambani Ward</option>';
+            ward_options_str  += '<option value="Migwani Ward">Migwani Ward</option>';
+            ward_options_str  += '<option value="Mui Ward">Mui Ward</option>';
+            ward_options_str  += '<option value="Mulango Ward">Mulango Ward</option>';
+            ward_options_str  += '<option value="Mumoni Ward">Mumoni Ward</option>';
+            ward_options_str  += '<option value="Mutha Ward">Mutha Ward</option>';
+            ward_options_str  += '<option value="Mutitu/kaliku Ward">Mutitu/kaliku Ward</option>';
+            ward_options_str  += '<option value="Mutomo Ward">Mutomo Ward</option>';
+            ward_options_str  += '<option value="Mutongoni Ward">Mutongoni Ward</option>';
+            ward_options_str  += '<option value="Ngomeni Ward">Ngomeni Ward</option>';
+            ward_options_str  += '<option value="Nguni Ward">Nguni Ward</option>';
+            ward_options_str  += '<option value="Nguutani Ward">Nguutani Ward</option>';
+            ward_options_str  += '<option value="Nuu Ward">Nuu Ward</option>';
+            ward_options_str  += '<option value="Nzambani Ward">Nzambani Ward</option>';
+            ward_options_str  += '<option value="Tharaka Ward">Tharaka Ward</option>';
+            ward_options_str  += '<option value="Township Ward">Township Ward</option>';
+            ward_options_str  += '<option value="Tseikuru Ward">Tseikuru Ward</option>';
+            ward_options_str  += '<option value="Voo/kyamatu Ward">Voo/kyamatu Ward</option>';
+            ward_options_str  += '<option value="Waita Ward">Waita Ward</option>';
+            ward_options_str  += '<option value="Zombe/mwitika Ward">Zombe/mwitika Ward</option>';
+            sel_ward.innerHTML = ward_options_str;
+            div_ward.appendChild(sel_ward);
+            var lab_ward = document.createElement('div');
+            lab_ward.innerHTML = 'ward';
+            lab_ward.className = 'filterlabel';
+            div_ward.appendChild(lab_ward);
+            var reset_ward = document.createElement('div');
+            reset_ward.innerHTML = 'clear filter';
+            reset_ward.className = 'filterlabel';
+            reset_ward.onclick = function() {
+                var options = document.getElementById("sel_ward").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_ward.appendChild(reset_ward);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_PARTY = document.createElement('div');
+            div_PARTY.id = "div_PARTY";
+            div_PARTY.className= "filterselect";
+            document.getElementById("menu").appendChild(div_PARTY);
+            sel_PARTY = document.createElement('select');
+            sel_PARTY.multiple = true;
+            sel_PARTY.size = 8;
+            sel_PARTY.id = "sel_PARTY";
+            var PARTY_options_str = "<option value='' unselected></option>";
+            sel_PARTY.onchange = function(){filterFunc()};
+            PARTY_options_str  += '<option value="CPK">CPK</option>';
+            PARTY_options_str  += '<option value="GTAP">GTAP</option>';
+            PARTY_options_str  += '<option value="INDEPENDENT">INDEPENDENT</option>';
+            PARTY_options_str  += '<option value="JUBILEE">JUBILEE</option>';
+            PARTY_options_str  += '<option value="MUUNGANO">MUUNGANO</option>';
+            PARTY_options_str  += '<option value="NARC">NARC</option>';
+            PARTY_options_str  += '<option value="UDA">UDA</option>';
+            PARTY_options_str  += '<option value="WDM K">WDM K</option>';
+            sel_PARTY.innerHTML = PARTY_options_str;
+            div_PARTY.appendChild(sel_PARTY);
+            var lab_PARTY = document.createElement('div');
+            lab_PARTY.innerHTML = 'PARTY';
+            lab_PARTY.className = 'filterlabel';
+            div_PARTY.appendChild(lab_PARTY);
+            var reset_PARTY = document.createElement('div');
+            reset_PARTY.innerHTML = 'clear filter';
+            reset_PARTY.className = 'filterlabel';
+            reset_PARTY.onclick = function() {
+                var options = document.getElementById("sel_PARTY").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_PARTY.appendChild(reset_PARTY);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_subcounty = document.createElement('div');
+            div_subcounty.id = "div_subcounty";
+            div_subcounty.className= "filterselect";
+            document.getElementById("menu").appendChild(div_subcounty);
+            sel_subcounty = document.createElement('select');
+            sel_subcounty.multiple = true;
+            sel_subcounty.size = 8;
+            sel_subcounty.id = "sel_subcounty";
+            var subcounty_options_str = "<option value='' unselected></option>";
+            sel_subcounty.onchange = function(){filterFunc()};
+            subcounty_options_str  += '<option value="Kitui Central  Sub County">Kitui Central  Sub County</option>';
+            subcounty_options_str  += '<option value="Kitui East Sub County">Kitui East Sub County</option>';
+            subcounty_options_str  += '<option value="Kitui Rural Sub County">Kitui Rural Sub County</option>';
+            subcounty_options_str  += '<option value="Kitui South Sub County">Kitui South Sub County</option>';
+            subcounty_options_str  += '<option value="Kitui West  Sub County">Kitui West  Sub County</option>';
+            subcounty_options_str  += '<option value="Mwingi Central Sub- County">Mwingi Central Sub- County</option>';
+            subcounty_options_str  += '<option value="Mwingi North Sub County">Mwingi North Sub County</option>';
+            subcounty_options_str  += '<option value="Mwingi West Sub County">Mwingi West Sub County</option>';
+            sel_subcounty.innerHTML = subcounty_options_str;
+            div_subcounty.appendChild(sel_subcounty);
+            var lab_subcounty = document.createElement('div');
+            lab_subcounty.innerHTML = 'subcounty';
+            lab_subcounty.className = 'filterlabel';
+            div_subcounty.appendChild(lab_subcounty);
+            var reset_subcounty = document.createElement('div');
+            reset_subcounty.innerHTML = 'clear filter';
+            reset_subcounty.className = 'filterlabel';
+            reset_subcounty.onclick = function() {
+                var options = document.getElementById("sel_subcounty").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_subcounty.appendChild(reset_subcounty);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_MCA = document.createElement('div');
+            div_MCA.id = "div_MCA";
+            div_MCA.className= "filterselect";
+            document.getElementById("menu").appendChild(div_MCA);
+            sel_MCA = document.createElement('select');
+            sel_MCA.multiple = true;
+            sel_MCA.size = 10;
+            sel_MCA.id = "sel_MCA";
+            var MCA_options_str = "<option value='' unselected></option>";
+            sel_MCA.onchange = function(){filterFunc()};
+            MCA_options_str  += '<option value="Alphonse Mukwaiyu Musyimi">Alphonse Mukwaiyu Musyimi</option>';
+            MCA_options_str  += '<option value="Isumail Dominic Mwamisi">Isumail Dominic Mwamisi</option>';
+            MCA_options_str  += '<option value="Kasele Aron Kilonzo">Kasele Aron Kilonzo</option>';
+            MCA_options_str  += '<option value="Kasinga Titus Munyoki">Kasinga Titus Munyoki</option>';
+            MCA_options_str  += '<option value="Kasyoka Judith Wanza">Kasyoka Judith Wanza</option>';
+            MCA_options_str  += '<option value="Katana Stephen Ileve">Katana Stephen Ileve</option>';
+            MCA_options_str  += '<option value="Katula Boniface Mukwate">Katula Boniface Mukwate</option>';
+            MCA_options_str  += '<option value="Katumbi Boniface Maundu">Katumbi Boniface Maundu</option>';
+            MCA_options_str  += '<option value="Kavula Joseph Kasungi">Kavula Joseph Kasungi</option>';
+            MCA_options_str  += '<option value="Kieti Muthama Musyoka">Kieti Muthama Musyoka</option>';
+            MCA_options_str  += '<option value="Kimanzi Daniel Ngoima">Kimanzi Daniel Ngoima</option>';
+            MCA_options_str  += '<option value="Kimuli Kyalo">Kimuli Kyalo</option>';
+            MCA_options_str  += '<option value="Kitonyo Peter Mwanza">Kitonyo Peter Mwanza</option>';
+            MCA_options_str  += '<option value="Maluki Paul">Maluki Paul</option>';
+            MCA_options_str  += '<option value="Mawia Harrison Maluki">Mawia Harrison Maluki</option>';
+            MCA_options_str  += '<option value="Mbithe Joseph Musyoka">Mbithe Joseph Musyoka</option>';
+            MCA_options_str  += '<option value="Mbuno Erastus Musyoka">Mbuno Erastus Musyoka</option>';
+            MCA_options_str  += '<option value="Muange Daniel Kimanzi">Muange Daniel Kimanzi</option>';
+            MCA_options_str  += '<option value="Mulandi Ndambu Benjamin">Mulandi Ndambu Benjamin</option>';
+            MCA_options_str  += '<option value="Munyalo Kitheka Silvester">Munyalo Kitheka Silvester</option>';
+            MCA_options_str  += '<option value="Munyao David Masaku">Munyao David Masaku</option>';
+            MCA_options_str  += '<option value="Munyao Malinga">Munyao Malinga</option>';
+            MCA_options_str  += '<option value="Munyasya Benard Mwangangi">Munyasya Benard Mwangangi</option>';
+            MCA_options_str  += '<option value="Munyithya Sammy Musili">Munyithya Sammy Musili</option>';
+            MCA_options_str  += '<option value="Musyoka Antony Musili">Musyoka Antony Musili</option>';
+            MCA_options_str  += '<option value="Musyoka Cyrus Kisavi">Musyoka Cyrus Kisavi</option>';
+            MCA_options_str  += '<option value="Mutambu Alex Nganga">Mutambu Alex Nganga</option>';
+            MCA_options_str  += '<option value="Mutemi Nicholas Muema">Mutemi Nicholas Muema</option>';
+            MCA_options_str  += '<option value="Muthami Cornelius Ngumbau">Muthami Cornelius Ngumbau</option>';
+            MCA_options_str  += '<option value="Mutua Jeremia Musee">Mutua Jeremia Musee</option>';
+            MCA_options_str  += '<option value="Mutunga Munyao Gabriel">Mutunga Munyao Gabriel</option>';
+            MCA_options_str  += '<option value="Mwandia Hussein">Mwandia Hussein</option>';
+            MCA_options_str  += '<option value="Mwanzia Nzavu">Mwanzia Nzavu</option>';
+            MCA_options_str  += '<option value="Mwinzi Munyoki">Mwinzi Munyoki</option>';
+            MCA_options_str  += '<option value="Ndagara Godfrey Muthengi">Ndagara Godfrey Muthengi</option>';
+            MCA_options_str  += '<option value="Nding&apos;o Mark Kitute">Nding&apos;o Mark Kitute</option>';
+            MCA_options_str  += '<option value="Ngwele Joseph Nzungi">Ngwele Joseph Nzungi</option>';
+            MCA_options_str  += '<option value="Nzioka Christopher Nzilu">Nzioka Christopher Nzilu</option>';
+            MCA_options_str  += '<option value="Syengo Zaccheus Ivutha">Syengo Zaccheus Ivutha</option>';
+            MCA_options_str  += '<option value="Vuthi Matthew Ngovi">Vuthi Matthew Ngovi</option>';
+            sel_MCA.innerHTML = MCA_options_str;
+            div_MCA.appendChild(sel_MCA);
+            var lab_MCA = document.createElement('div');
+            lab_MCA.innerHTML = 'MCA';
+            lab_MCA.className = 'filterlabel';
+            div_MCA.appendChild(lab_MCA);
+            var reset_MCA = document.createElement('div');
+            reset_MCA.innerHTML = 'clear filter';
+            reset_MCA.className = 'filterlabel';
+            reset_MCA.onclick = function() {
+                var options = document.getElementById("sel_MCA").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_MCA.appendChild(reset_MCA);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_uid = document.createElement('div');
+            div_uid.id = "div_uid";
+            div_uid.className= "filterselect";
+            document.getElementById("menu").appendChild(div_uid);
+            sel_uid = document.createElement('select');
+            sel_uid.multiple = true;
+            sel_uid.size = 10;
+            sel_uid.id = "sel_uid";
+            var uid_options_str = "<option value='' unselected></option>";
+            sel_uid.onchange = function(){filterFunc()};
+            uid_options_str  += '<option value="Apa4iLKG02o">Apa4iLKG02o</option>';
+            uid_options_str  += '<option value="BLSmZHA1d92">BLSmZHA1d92</option>';
+            uid_options_str  += '<option value="CHn58eAvVl9">CHn58eAvVl9</option>';
+            uid_options_str  += '<option value="ENDuWpU74vp">ENDuWpU74vp</option>';
+            uid_options_str  += '<option value="Ekb0OY8S4Jm">Ekb0OY8S4Jm</option>';
+            uid_options_str  += '<option value="IgBhlSMshmk">IgBhlSMshmk</option>';
+            uid_options_str  += '<option value="KBHoROCFohc">KBHoROCFohc</option>';
+            uid_options_str  += '<option value="LHmp6sPE2w7">LHmp6sPE2w7</option>';
+            uid_options_str  += '<option value="MLjJaYTdwrs">MLjJaYTdwrs</option>';
+            uid_options_str  += '<option value="RJxeNbjGm71">RJxeNbjGm71</option>';
+            uid_options_str  += '<option value="T9ZjyItHbW9">T9ZjyItHbW9</option>';
+            uid_options_str  += '<option value="ToGeasli0pe">ToGeasli0pe</option>';
+            uid_options_str  += '<option value="V2yqe9L0ha7">V2yqe9L0ha7</option>';
+            uid_options_str  += '<option value="WJLrTzwzXNb">WJLrTzwzXNb</option>';
+            uid_options_str  += '<option value="WOJ90HLwb6o">WOJ90HLwb6o</option>';
+            uid_options_str  += '<option value="XBMMn5fIwkJ">XBMMn5fIwkJ</option>';
+            uid_options_str  += '<option value="XCMLultdtNW">XCMLultdtNW</option>';
+            uid_options_str  += '<option value="Xl4sI0chC8S">Xl4sI0chC8S</option>';
+            uid_options_str  += '<option value="ZkMkC815uDw">ZkMkC815uDw</option>';
+            uid_options_str  += '<option value="amA6INYYpDG">amA6INYYpDG</option>';
+            uid_options_str  += '<option value="bBYJtOmYctd">bBYJtOmYctd</option>';
+            uid_options_str  += '<option value="fIEkqCnDeKD">fIEkqCnDeKD</option>';
+            uid_options_str  += '<option value="fYDplrDSXQI">fYDplrDSXQI</option>';
+            uid_options_str  += '<option value="fgZAe9zffHF">fgZAe9zffHF</option>';
+            uid_options_str  += '<option value="hwHZgY7hwgN">hwHZgY7hwgN</option>';
+            uid_options_str  += '<option value="iu8wSlOZmfl">iu8wSlOZmfl</option>';
+            uid_options_str  += '<option value="p0vnle5S7g2">p0vnle5S7g2</option>';
+            uid_options_str  += '<option value="pesguszdkri">pesguszdkri</option>';
+            uid_options_str  += '<option value="qWZAzrzTN2v">qWZAzrzTN2v</option>';
+            uid_options_str  += '<option value="rPWcODiKrP8">rPWcODiKrP8</option>';
+            uid_options_str  += '<option value="rWDqxS3mGCY">rWDqxS3mGCY</option>';
+            uid_options_str  += '<option value="sTm9i4x7TTQ">sTm9i4x7TTQ</option>';
+            uid_options_str  += '<option value="tKZn1p295Nb">tKZn1p295Nb</option>';
+            uid_options_str  += '<option value="uyBigxC7fHZ">uyBigxC7fHZ</option>';
+            uid_options_str  += '<option value="vpiZlB5cdK7">vpiZlB5cdK7</option>';
+            uid_options_str  += '<option value="vvsB9Kldjzy">vvsB9Kldjzy</option>';
+            uid_options_str  += '<option value="wBisHlJd2aK">wBisHlJd2aK</option>';
+            uid_options_str  += '<option value="xM6qhREfp7o">xM6qhREfp7o</option>';
+            uid_options_str  += '<option value="zNPxEQ4AIcH">zNPxEQ4AIcH</option>';
+            uid_options_str  += '<option value="zR0sWpigMWE">zR0sWpigMWE</option>';
+            sel_uid.innerHTML = uid_options_str;
+            div_uid.appendChild(sel_uid);
+            var lab_uid = document.createElement('div');
+            lab_uid.innerHTML = 'uid';
+            lab_uid.className = 'filterlabel';
+            div_uid.appendChild(lab_uid);
+            var reset_uid = document.createElement('div');
+            reset_uid.innerHTML = 'clear filter';
+            reset_uid.className = 'filterlabel';
+            reset_uid.onclick = function() {
+                var options = document.getElementById("sel_uid").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_uid.appendChild(reset_uid);
+        </script>
+    </body>
+</html>
